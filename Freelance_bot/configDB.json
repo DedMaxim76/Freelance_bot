@@ -1,0 +1,3 @@
+{
+  "DefaultConnection": "Host=localhost;Port=5432;Database=Freelance_bot2;Username=postgres_KPI;Password=postgres_KPI"
+}
