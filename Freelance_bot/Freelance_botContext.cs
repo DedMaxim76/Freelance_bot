@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
+
 
 #nullable disable
 
@@ -20,6 +22,7 @@ namespace Freelance_bot
         {
         }
 
+
         public virtual DbSet<Card> Cards { get; set; }
         public virtual DbSet<Chat> Chats { get; set; }
         public virtual DbSet<ErrorTransaction> ErrorTransactions { get; set; }
@@ -29,6 +32,14 @@ namespace Freelance_bot
         public virtual DbSet<Transactionlist> Transactionlists { get; set; }
         public virtual DbSet<TransactionsView> TransactionsViews { get; set; }
         public virtual DbSet<User> Users { get; set; }
+        public class Test_Function
+        {
+            public int user_id { get; set; }
+
+        }
+
+        public virtual DbSet<Test_Function> Test_Func { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -42,7 +53,15 @@ namespace Freelance_bot
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            
             modelBuilder.HasAnnotation("Relational:Collation", "Russian_Ukraine.1251");
+
+
+            modelBuilder.Entity<Test_Function>(
+            eb =>
+            {
+                eb.HasNoKey();
+            });
 
             modelBuilder.Entity<Card>(entity =>
             {
@@ -322,6 +341,8 @@ namespace Freelance_bot
                     .IsRequired()
                     .HasColumnName("user_name");
             });
+
+
 
             OnModelCreatingPartial(modelBuilder);
         }
