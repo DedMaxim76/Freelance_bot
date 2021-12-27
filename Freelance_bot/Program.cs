@@ -5,17 +5,36 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
+using Freelance_bot.Tasks;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Freelance_bot
 {
-    class Program
+    public class Program
     {
-        static void Main()
+        static async Task  Main()
         {
-            Console.WriteLine("--------------------------------------");
+
+            using var context = new Freelance_botContext();
+            Task_4 task = new();
+            task.MultithreadedRecording();
+
+            //await task.PrintAllIds();
+
+            task.Dif_Task_And_Thread();
+
+            ClearMultiThreading();
+
+
+            /*Console.WriteLine("--------------------------------------");
+
+            GetUsersWithOrdersSmallerThan(2, new DateTime(2021,12,16));
+
+
             GetOrdersSum();
             Console.WriteLine("--------------------------------------\n");
-
 
             GetOrderMax();
             Console.WriteLine("--------------------------------------\n");
@@ -26,7 +45,7 @@ namespace Freelance_bot
             crossJoin();
             Console.WriteLine("--------------------------------------\n");
 
-            GetOrderUperThen(1, 123);
+            GetOrderUperThen(200, 123);
             Console.WriteLine("--------------------------------------\n");
 
             Orders_ASC();
@@ -38,8 +57,8 @@ namespace Freelance_bot
             CountOrders();
             Console.WriteLine("--------------------------------------\n");
 
-            GetOrders(1);
-            Console.WriteLine("--------------------------------------\n");
+            GetOrders(2);
+            Console.WriteLine("--------------------------------------\n");*/
 
 
 
@@ -57,6 +76,44 @@ namespace Freelance_bot
             ShowTable();*/
         }
 
+        static void ClearMultiThreading()
+        {
+            Thread.Sleep(15000);
+            for (int i = 0; i <= 3000; i+=1000) {
+                for (int k = 1; k <= 100; k++)
+                {
+                    DeleteOrder(i + k);
+                    DeleteUser(i + k);
+                }
+
+                Console.WriteLine("Deleted 100 orders and users");
+            };
+        }
+
+        static void GetUsersWithOrdersSmallerThan(int count_orders, DateTime time)
+        {
+            using (Freelance_botContext db = new())
+            {
+                var join = db.Orders.Join(db.Users,
+                       x => x.CreatorId,
+                       y => y.UserId, (x, y) => new
+                       {
+                           x.OrderId,
+                           OrderCost = x.CostValue,
+                           x.CreatedAt,
+                           y.UserId,
+                           y.UserName
+                       }).Where(x => x.CreatedAt >= time)
+                       .GroupBy(p => p.UserId)
+                       .Select(g => new { g.Key, Count = g.Count() })
+                       .Where(x => x.Count >= count_orders); ;
+                Console.WriteLine("UserID   Count_Of_Orders");
+                foreach (var j in join)
+                    Console.WriteLine("{0}      {1}", j.Key, j.Count);
+            }
+            Console.WriteLine();
+            Console.WriteLine();
+        }
 
         static void GetOrdersSum()
         {
@@ -99,11 +156,11 @@ namespace Freelance_bot
                        x => x.CreatorId,
                        y => y.UserId, (x, y) => new
                        {
-                           OrderId = x.OrderId,
+                           x.OrderId,
                            OrderCost = x.CostValue,
-                           MediaMessageUrl = x.MediaMessageUrl,
-                           UserId = y.UserId,
-                           UserName = y.UserName
+                           x.MediaMessageUrl,
+                           y.UserId,
+                           y.UserName
                        });
                 foreach (var j in join)
                     Console.WriteLine("{0}  {1}  {2}  {3}  {4}", j.OrderId, j.OrderCost, j.MediaMessageUrl, j.UserId, j.UserName);
@@ -223,6 +280,17 @@ namespace Freelance_bot
             if (order != null)
             {
                 _ = db.Orders.Remove(order);
+                db.SaveChanges();
+            }
+        }
+        static void DeleteUser(Int64 user_id)
+        {
+            using Freelance_botContext db = new();
+
+            User user = db.Users.Find(user_id);
+            if (user != null)
+            {
+                _ = db.Users.Remove(user);
                 db.SaveChanges();
             }
         }

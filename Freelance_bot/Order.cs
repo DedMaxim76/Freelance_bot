@@ -14,8 +14,8 @@ namespace Freelance_bot
 
         public long OrderId { get; set; }
         public long CreatorId { get; set; }
-        public long? WorkerId { get; set; }
-        public long? ChatId { get; set; }
+        public long WorkerId { get; set; }
+        public long ChatId { get; set; }
         public string Status { get; set; }
         public string Category { get; set; }
         public string Description { get; set; }
